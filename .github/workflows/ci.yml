@@ -1,0 +1,42 @@
+# CI workflow for building the Jekyll site
+# Key fixes:
+# - Pin runner to ubuntu-22.04 to avoid ubuntu-24.04 incompatibility in older action SHAs
+# - Use ruby/setup-ruby@v1 which supports ubuntu-22.04 and 24.04
+# - Enable bundler caching for faster builds
+
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Pin to 22.04 to bypass the "self-hosted detected" issue on 24.04 with old SHAs
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        # v1 supports current GitHub-hosted images; avoids the deprecated SHA in your logs
+        uses: ruby/setup-ruby@v1
+        with:
+          # GitHub Pages currently runs on Ruby 3.1 (compatible with 'github-pages' gem)
+          ruby-version: '3.1'
+          bundler-cache: true
+
+      - name: Install dependencies
+        # Explicit install is fine even with bundler-cache=true (no-op when cache hit)
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Build site
+        env:
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build --trace
+
