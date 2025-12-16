@@ -680,6 +680,12 @@ footer {
   gap: 12px;
 }
 
+.footer-company {
+  font-size: 14px;
+  font-weight: 600;
+  color: $textSecondaryColor;
+}
+
 .footer-address {
   font-size: 14px;
   color: $textSecondaryColor;
